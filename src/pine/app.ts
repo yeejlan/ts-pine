@@ -1,4 +1,4 @@
-import {env, throwError} from './common';
+import {env, throwError} from './function';
 import {PineException} from './exception';
 
 export class App {

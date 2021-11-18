@@ -1,4 +1,4 @@
-import {env, envNumber, envBool, throwError} from './common';
+import {env, envNumber, envBool, throwError} from './function';
 
 it('env', () => {
     expect(env('app_name')).toBe('pine-lib');
