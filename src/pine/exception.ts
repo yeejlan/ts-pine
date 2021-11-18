@@ -14,6 +14,3 @@ export class DbException {};
 export class ServiceException {};
 export class UserException {};
 
-export class NotFoundException {};
-export class InterServerErrorException {};
-
