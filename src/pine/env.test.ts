@@ -1,3 +1,5 @@
+import {env, envNumber, envBool} from './env';
+
 it('env', () => {
     expect(env('app_name')).toBe('pine-lib');
     //with cache
@@ -26,21 +28,5 @@ it('envBool', () => {
 it('envBool with default value', () => {
     expect(envBool('not_exist', false)).toBe(false);
     expect(envBool('not_exist', true)).toBe(true);
-});
-
-class MyException {};
-
-it('throwError', () => {
-    expect(() => throwError(MyException.name, 'my error', 3210)).toThrowError('my error');
-    
-    try{
-        throwError(MyException.name, 'my error', 3210)
-    }catch(e){
-        expect(e instanceof Error).toBe(true);
-        if(e instanceof Error){
-            expect(e.type).toBe(MyException.name);
-            expect(e.code).toBe(3210);
-        }
-    }
 });
 
