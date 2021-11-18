@@ -1,5 +1,5 @@
 import {env, throwError} from './function';
-import {PineException} from './exception';
+import {PineError} from './exception';
 import {pino} from 'pino';
 
 export class App {
@@ -15,7 +15,7 @@ export class App {
     async init() {
 		// set timezone
 		if(!env('app_timezone')){
-			throwError(PineException.name, 'app_timezone not found.');
+			throwError(PineError.name, 'app_timezone not found.');
 		}
 		process.env.TZ = env('app_timezone');
 

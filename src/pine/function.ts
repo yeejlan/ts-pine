@@ -1,3 +1,5 @@
+import { PineError } from "./exception";
+
 type EnvCache = { [k: string]: string };
 
 let env_cache: EnvCache = {};
@@ -37,7 +39,7 @@ export function envBool(key: string, default_value: boolean = false): boolean {
 }
 
 export function throwError(type: string, message: string, code: number = 1000){
-  let e: Error = new Error(message);
+  let e = new PineError(message);
   e.type = type;
   e.code = code;
   throw e;
