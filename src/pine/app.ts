@@ -1,3 +1,5 @@
+import {env, throwError} from './common';
+import {PineException} from './exception';
 
 export class App {
     env: string;
@@ -10,12 +12,14 @@ export class App {
     }
 
     async init() {
-		//set timezone
+		// set timezone
 		if(!env('app_timezone')){
-			log.error('Please set "app_timezone" in env file');
-			process.exit(1);
+			throwError(PineException.name, 'app_timezone not found.');
 		}
-		process.env.TZ = this._config.timezone;
+		process.env.TZ = env('app_timezone');
+
+		// log.info(`App[${this.name}] starting with env=${this.env}, working_dir = ` + process.cwd());
+		this.isInit = true;
     }
 
 }
