@@ -1,5 +1,6 @@
 import {env, throwError} from './function';
 import {PineException} from './exception';
+import {pino} from 'pino';
 
 export class App {
     env: string;
@@ -18,7 +19,9 @@ export class App {
 		}
 		process.env.TZ = env('app_timezone');
 
-		// log.info(`App[${this.name}] starting with env=${this.env}, working_dir = ` + process.cwd());
+        let logger = pino({    level: 'info',
+        timestamp: () => `,"time":"${new Date(Date.now()).toISOString()}"`,})
+		logger.info(`App[${this.name}] starting with env=${this.env}, working_dir = ` + process.cwd());
 		this.isInit = true;
     }
 
