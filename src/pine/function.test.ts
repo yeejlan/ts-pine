@@ -2,9 +2,9 @@ import { PineError } from './exception';
 import {env, envNumber, envBool, throwError} from './function';
 
 it('env', () => {
-    expect(env('app_name')).toBe('pine-lib');
+    expect(env('app_name')).toBe('pine-app');
     //with cache
-    expect(env('app_name')).toBe('pine-lib');
+    expect(env('app_name')).toBe('pine-app');
 });
 
 it('env with default value', () => {

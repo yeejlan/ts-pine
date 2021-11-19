@@ -1,6 +1,11 @@
-import {App} from './pine/app';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const app = new App();
-app.init();
+import {App} from './pine/app';
+
+async function main() {
+    const app = App();
+    await app.bootstrap();
+}
+
+main();

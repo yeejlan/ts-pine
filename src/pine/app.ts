@@ -1,28 +1,38 @@
 import {env, throwError} from './function';
 import {PineError} from './exception';
-import {pino} from 'pino';
+import {Logger} from './logger';
+import { Settings as LuxonSettings } from 'luxon';
 
-export class App {
-    env: string;
-    name: string;
+export class PineApp {
+    env: string = 'production';
+    name: string = 'pine-app';
+    logger!: Logger;
     isInit = false;
 
-    constructor() {
+    async bootstrap() {
+        this.logger = Logger();
         this.env = env('app_env');
         this.name = env('app_name');
-    }
 
-    async init() {
 		// set timezone
-		if(!env('app_timezone')){
-			throwError(PineError.name, 'app_timezone not found.');
+        const timezone = env('app_timezone');
+		if(!timezone){
+            const timzone_missing = "'app_timezone not found.'";
+            this.logger.fatal(timzone_missing);
+			throwError(PineError.name, timzone_missing);
 		}
-		process.env.TZ = env('app_timezone');
+		process.env.TZ = timezone;
+        LuxonSettings.defaultZone=timezone;
 
-        let logger = pino({    level: 'info',
-        timestamp: () => `,"time":"${new Date(Date.now()).toISOString()}"`,})
-		logger.info(`App[${this.name}] starting with env=${this.env}, working_dir = ` + process.cwd());
+        const boot_message = `App[${this.name}] starting with env=${this.env}, working_dir=` + process.cwd()
+		this.logger.info(boot_message);
 		this.isInit = true;
     }
 
+}
+
+const app = new PineApp();
+
+export function App() {
+    return app;
 }
