@@ -1,5 +1,5 @@
 import {injectable} from 'inversify';
-import {Container} from './container';
+import {container} from './container';
 import {app} from './app';
 
 @injectable()
@@ -11,4 +11,4 @@ export class Router {
 	// }    
 }
 
-export const router = Container().get(Router);
+export const router = container.get(Router);

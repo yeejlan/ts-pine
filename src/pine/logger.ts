@@ -1,7 +1,7 @@
 import {pino} from 'pino';
 import {injectable} from 'inversify';
 import {DateTime} from 'luxon';
-import {Container} from './container';
+import {container} from './container';
 import {env} from './function'
 
 export interface Logger {
@@ -56,7 +56,7 @@ export class Logger implements Logger {
     }
 }
 
-export const logger: Logger = Container().get(Logger);
+export const logger: Logger = container.get(Logger);
 logger.open();
 
 

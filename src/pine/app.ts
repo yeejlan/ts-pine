@@ -1,5 +1,5 @@
 import {injectable} from 'inversify';
-import {Container} from './container';
+import {container} from './container';
 import {env, envBool} from './function';
 import {logger} from './logger';
 import { Settings as LuxonSettings } from 'luxon';
@@ -49,5 +49,5 @@ export class App {
 	}
 }
 
-export const app = Container().get(App);
+export const app = container.get(App);
 

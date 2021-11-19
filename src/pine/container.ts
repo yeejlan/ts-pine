@@ -1,9 +1,4 @@
 import 'reflect-metadata';
-import { Container as InversifyContainer } from 'inversify';
+import { Container } from 'inversify';
 
-const container = new InversifyContainer({ autoBindInjectable: true });
-
-export function Container() {
-    return container;
-}
-
+export const container = new Container({ autoBindInjectable: true });
