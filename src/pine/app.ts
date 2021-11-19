@@ -16,13 +16,12 @@ export class PineApp {
 
 		// set timezone
         const timezone = env('app_timezone');
-		if(!timezone){
-            const timzone_missing = "'app_timezone not found.'";
-            this.logger.fatal(timzone_missing);
-			throwError(PineError.name, timzone_missing);
-		}
-		process.env.TZ = timezone;
-        LuxonSettings.defaultZone=timezone;
+		if(timezone){
+		    process.env.TZ = timezone;
+            LuxonSettings.defaultZone=timezone;
+		}else{
+            this.logger.warn('app_timezone is missing.');
+        }
 
         const boot_message = `App[${this.name}] starting with env=${this.env}, working_dir=` + process.cwd()
 		this.logger.info(boot_message);

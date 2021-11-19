@@ -1,7 +1,8 @@
 import {pino} from 'pino';
 import {injectable} from 'inversify';
-import { DateTime } from 'luxon';
-import { Container } from './container';
+import {DateTime} from 'luxon';
+import {Container} from './container';
+import {env} from './function'
 
 export interface Logger {
     open(): void;
@@ -18,7 +19,7 @@ export class PineLogger implements Logger {
     private logger: pino.Logger;
 
     constructor() {
-        this.logger = pino({level: 'info', 
+        this.logger = pino({level: env('log_level', 'info'),
             timestamp: () => `,"time":"${DateTime.now().toISO()}"`});
     }
 
