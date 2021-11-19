@@ -19,8 +19,16 @@ export class PineLogger implements Logger {
     private logger: pino.Logger;
 
     constructor() {
-        this.logger = pino({level: env('log_level', 'info'),
-            timestamp: () => `,"time":"${DateTime.now().toISO()}"`});
+        const formatters = {
+            level (label: string, _: number) {
+              return { level: label }
+            }
+        };
+        this.logger = pino({
+            level: env('log_level', 'info'),
+            timestamp: () => `,"time":"${DateTime.now().toISO()}"`,
+            formatters: formatters,
+        });
     }
 
     open(){}
