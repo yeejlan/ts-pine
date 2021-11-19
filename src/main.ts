@@ -3,9 +3,12 @@ dotenv.config();
 
 import {App} from './pine/app';
 
+const app = App();
+
 async function main() {
-    const app = App();
     await app.bootstrap();
 }
 
 main();
+
+app.shutdown();

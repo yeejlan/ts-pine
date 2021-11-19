@@ -1,18 +1,22 @@
-import {env, throwError} from './function';
-import {PineError} from './exception';
+import {env, envBool} from './function';
 import {Logger} from './logger';
 import { Settings as LuxonSettings } from 'luxon';
+
+type ShutdownHook = () => void;
 
 export class PineApp {
     env: string = 'production';
     name: string = 'pine-app';
+    debug: boolean = false;
     logger!: Logger;
-    isInit = false;
+    shutdownHook: ShutdownHook[] = [];
 
     async bootstrap() {
         this.logger = Logger();
+        this.addShutdownHook(this.logger.close);
         this.env = env('app_env');
         this.name = env('app_name');
+        this.debug = envBool('app_debug', false);
 
 		// set timezone
         const timezone = env('app_timezone');
@@ -23,11 +27,25 @@ export class PineApp {
             this.logger.warn('app_timezone is missing.');
         }
 
-        const boot_message = `App[${this.name}] starting with env=${this.env}, working_dir=` + process.cwd()
+        const boot_message = `App[${this.name}] start with env=${this.env}, working_dir=` + process.cwd()
 		this.logger.info(boot_message);
-		this.isInit = true;
     }
 
+	addShutdownHook(func: ShutdownHook){
+		this.shutdownHook.push(func)
+	}
+
+	shutdown() {
+		for(let func of this.shutdownHook) {
+			try{
+				func()
+			}catch(e){
+				//pass
+			}
+		}
+        const len = this.shutdownHook.length
+		this.logger.info(`App[${this.name}] shutdown with ${len} hook[s] processed.`);
+	}
 }
 
 const app = new PineApp();
