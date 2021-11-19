@@ -2,7 +2,7 @@ export {app, App} from './app';
 export {container} from './container';
 export {router, Router} from './router';
 export {server, Server} from './server';
-export {logger, Logger} from './logger';
+export {Logger, ConsoleLogger} from './logger';
 
 export {env, envNumber, envBool, throwError} from './function';
 

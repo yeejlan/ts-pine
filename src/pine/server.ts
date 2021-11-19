@@ -1,7 +1,6 @@
 import http from 'http';
 import {injectable} from 'inversify';
 import {container} from './container';
-import {logger} from './logger';
 import {app} from './app';
 
 @injectable()

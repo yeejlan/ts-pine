@@ -1,7 +1,7 @@
-import {injectable} from 'inversify';
+import {injectable, inject} from 'inversify';
 import {container} from './container';
 import {env, envBool} from './function';
-import {logger} from './logger';
+import {Logger} from './logger';
 import { Settings as LuxonSettings } from 'luxon';
 
 export type ShutdownHook = () => void;
@@ -13,8 +13,11 @@ export class App {
     debug: boolean = false;
     shutdownHook: ShutdownHook[] = [];
 
+    @inject(Logger)
+    logger!: Logger;
+
     async bootstrap() {
-        this.addShutdownHook(logger.close);
+        this.addShutdownHook(this.logger.close);
         this.env = env('app_env');
         this.name = env('app_name');
         this.debug = envBool('app_debug', false);
@@ -25,11 +28,11 @@ export class App {
 		    process.env.TZ = timezone;
             LuxonSettings.defaultZone=timezone;
 		}else{
-            logger.warn('app_timezone is missing.');
+            this.logger.warn('app_timezone is missing.');
         }
 
-        const boot_message = `App[${this.name}] start with env=${this.env}, working_dir=` + process.cwd()
-		logger.info(boot_message);
+        const boot_message = `${this.name} start with env=${this.env}, working_dir=` + process.cwd()
+		this.logger.info(boot_message);
     }
 
 	addShutdownHook(func: ShutdownHook){
@@ -45,7 +48,7 @@ export class App {
 			}
 		}
         const len = this.shutdownHook.length
-		logger.info(`App[${this.name}] shutdown with ${len} hook[s] processed.`);
+		this.logger.info(`${this.name} shutdown with ${len} hook[s] processed.`);
 	}
 }
 

@@ -1,7 +1,6 @@
 import {pino} from 'pino';
 import {injectable} from 'inversify';
 import {DateTime} from 'luxon';
-import {container} from './container';
 import {env} from './function'
 
 export interface Logger {
@@ -56,7 +55,31 @@ export class Logger implements Logger {
     }
 }
 
-export const logger: Logger = container.get(Logger);
-logger.open();
+@injectable()
+export class ConsoleLogger extends Logger implements Logger {
+    open(){}
+
+    close(){}
+
+    debug(mesasage: any, ...params: any[]){
+        console.log(`${DateTime.now().toISO()} [debug] ${mesasage}`, ...params);
+    }
+
+    info(mesasage: any, ...params: any[]){
+        console.log(`${DateTime.now().toISO()} [info] ${mesasage}`, ...params);
+    }
+
+    warn(mesasage: any, ...params: any[]){
+        console.log(`${DateTime.now().toISO()} [warn] ${mesasage}`, ...params);
+    }
+
+    error(mesasage: any, ...params: any[]){
+        console.log(`${DateTime.now().toISO()} [error] ${mesasage}`, ...params);
+    }
+
+    fatal(mesasage: any, ...params: any[]){
+        console.log(`${DateTime.now().toISO()} [fatal] ${mesasage}`, ...params);
+    }
+}
 
 
