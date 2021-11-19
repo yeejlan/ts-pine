@@ -12,6 +12,7 @@ export class App {
     name: string = 'pine-app';
     debug: boolean = false;
     shutdownHook: ShutdownHook[] = [];
+    storage: Map<string, any> = new Map;
 
     @inject(Logger)
     logger!: Logger;
@@ -49,6 +50,14 @@ export class App {
 		}
         const len = this.shutdownHook.length
 		this.logger.info(`${this.name} shutdown with ${len} hook[s] processed.`);
+	}
+
+	set(key: string, value: any){
+		this.storage.set(key, value);
+	}
+
+	get(key: string): any {
+		return this.storage.get(key);
 	}
 }
 

@@ -6,7 +6,7 @@ import {app} from './app';
 @injectable()
 export class Server {
 
-	serve() {
+    serve() {
     }
 }
 

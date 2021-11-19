@@ -12,14 +12,14 @@ export interface Rule {
 export class Router {
     protected routers: Rule[] = [];
 
-	addRoute(regex: RegExp, rewriteTo: string, paramMapping: Map<number, any>) {
-		let rule: Rule = {
-			regex: regex,
-			rewriteTo: rewriteTo,
-			paramMapping: paramMapping
-		};
-		this.routers.push(rule);
-	}
+    addRoute(regex: RegExp, rewriteTo: string, paramMapping: Map<number, any>) {
+        let rule: Rule = {
+            regex: regex,
+            rewriteTo: rewriteTo,
+            paramMapping: paramMapping
+        };
+        this.routers.push(rule);
+    }
 
 }
 
