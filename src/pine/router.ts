@@ -2,8 +2,6 @@ import http from 'http';
 import {injectable} from 'inversify';
 import {container} from './container';
 import {app} from './app';
-import url from 'url';
-import querystring from 'querystring';
 import mime from 'mime';
 import path from 'path';
 import fs from 'fs';
@@ -29,7 +27,7 @@ export class Router {
     }
 
     async dispatch(request: http.IncomingMessage, response: http.ServerResponse) {
-        let parsedUrl = new url.URL(request.url ?? '');
+        let parsedUrl = new URL(request.url ?? '');
         let params = parsedUrl.searchParams;
         let requestUri = parsedUrl.pathname;
         let uri = requestUri.replace(/^\//,'').replace(/\/$/,'');
@@ -277,7 +275,7 @@ export class Router {
                 });
 
                 request.on('end', function() {
-                    let post = querystring.parse(queryData);
+                    let post = new URLSearchParams(queryData);
                     resolve(post);
                 });
             });
@@ -289,7 +287,7 @@ export class Router {
         let fileNotFound = false;
 
         let BASEPATH = "public"
-        let parsedUrl = new url.URL(request.url ?? '');
+        let parsedUrl = new URL(request.url ?? '');
         let uri = parsedUrl.pathname;
         let ctype = mime.getType(uri);
         let fileLoc = path.join(BASEPATH, uri);
