@@ -1,9 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import {App} from './pine/app';
-
-const app = App();
+import {app} from './pine/app';
 
 async function main() {
     await app.bootstrap();

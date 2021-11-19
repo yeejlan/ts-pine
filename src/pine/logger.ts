@@ -15,7 +15,7 @@ export interface Logger {
 }
 
 @injectable()
-export class PineLogger implements Logger {
+export class Logger implements Logger {
     private logger: pino.Logger;
 
     constructor() {
@@ -56,9 +56,7 @@ export class PineLogger implements Logger {
     }
 }
 
-const logger: Logger = Container().get(PineLogger)
+export const logger: Logger = Container().get(Logger);
 logger.open();
 
-export function Logger() {
-    return logger;
-}        
+
