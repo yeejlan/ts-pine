@@ -1,6 +1,6 @@
 {
-  "name": "di",
-  "version": "1.0.0",
+  "name": "ts-pine",
+  "version": "0.1",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
