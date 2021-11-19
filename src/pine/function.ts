@@ -1,4 +1,4 @@
-import { PineError } from "./exception";
+import { PineError } from "./error";
 
 type EnvCache = { [k: string]: string };
 

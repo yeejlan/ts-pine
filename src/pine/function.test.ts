@@ -1,4 +1,4 @@
-import { PineError } from './exception';
+import { PineError } from './error';
 import {env, envNumber, envBool, throwError} from './function';
 
 it('env', () => {
