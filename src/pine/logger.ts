@@ -62,23 +62,23 @@ export class ConsoleLogger implements Logger {
     close(){}
 
     debug(mesasage: any, ...params: any[]){
-        console.log(`${DateTime.now().toISO()} [debug] ${mesasage}`, ...params);
+        console.log(`[DEBUG] ${DateTime.now().toISO()} ${mesasage}`, ...params);
     }
 
     info(mesasage: any, ...params: any[]){
-        console.log(`${DateTime.now().toISO()} [info] ${mesasage}`, ...params);
+        console.log(`[INFO] ${DateTime.now().toISO()} ${mesasage}`, ...params);
     }
 
     warn(mesasage: any, ...params: any[]){
-        console.log(`${DateTime.now().toISO()} [warn] ${mesasage}`, ...params);
+        console.log(`[WARN] ${DateTime.now().toISO()} ${mesasage}`, ...params);
     }
 
     error(mesasage: any, ...params: any[]){
-        console.log(`${DateTime.now().toISO()} [error] ${mesasage}`, ...params);
+        console.log(`[ERROR] ${DateTime.now().toISO()} ${mesasage}`, ...params);
     }
 
     fatal(mesasage: any, ...params: any[]){
-        console.log(`${DateTime.now().toISO()} [fatal] ${mesasage}`, ...params);
+        console.log(`[FATAL] ${DateTime.now().toISO()} ${mesasage}`, ...params);
     }
 }
 
