@@ -9,7 +9,19 @@ export class Server {
 
     serve(port: number = 8080) {
         let server = http.createServer(function(request, response) {
-            router.dispatch(request, response);
+            try{
+                router.dispatch(request, response);
+            }catch(err){
+                response.end();
+                request.socket.destroy();                
+                let estr = '';
+                if(err instanceof Error){
+                    estr = err.stack ?? err.message;
+                }else{
+                    estr = String(err);
+                }
+                logger.error("Server dispatch error: %s", estr);
+            }
         });
 
         let logger = app.logger;

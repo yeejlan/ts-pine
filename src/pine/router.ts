@@ -52,9 +52,6 @@ export class Router {
 
         //handle post data
         let post = await this.handlePost(request, response);
-        if(post === false) {
-            return;
-        }
         for(let key in post) {
             params.set(key, post[key]);
         }
@@ -280,7 +277,7 @@ export class Router {
                         response.writeHead(413, {'Content-Type': 'text/plain'});
                         response.end();
                         request.socket.destroy();
-                        reject(new Error('post too large'));
+                        resolve(false);
                     }
                 });
 
