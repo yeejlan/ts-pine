@@ -110,7 +110,7 @@ export class Router {
         ctx.controller = controller;
         ctx.action = action;
 
-        ctx.response.setHeader('Content-Type', 'text/html; charset=utf-8');
+        ctx.response.setHeader('Content-Type', 'text/html; charset=UTF-8');
         this.callAction(ctx, controller, action);
     }
 
@@ -164,6 +164,7 @@ export class Router {
             if(typeof data == 'string' || data instanceof Buffer){
                 ctx.response.end(data);
             }else{
+                ctx.response.setHeader('Content-Type', 'application/json; charset=UTF-8');
                 ctx.response.end(JSON.stringify(data));
             }
         }else{
