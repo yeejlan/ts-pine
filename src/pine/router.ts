@@ -184,7 +184,7 @@ export class Router {
             ctx.response.end(msg404);
             return
         }
-        let instance = new clz();
+        let instance = container.get<typeof clz>(clz);
         let actionStr = "page404Action";
         let func = instance[actionStr];
         if(!func) {
@@ -228,7 +228,7 @@ export class Router {
         let instance = null;
         let actionStr = 'page500Action';
         if(!body){
-            instance = new clz();
+            instance = container.get<typeof clz>(clz);
             let func = instance[actionStr];
             if(!func) {
                 body = msg500;
