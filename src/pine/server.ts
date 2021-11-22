@@ -2,26 +2,27 @@ import http from 'http';
 import {injectable} from 'inversify';
 import {container} from './container';
 import {app} from './app';
-import {router} from './router';
+//import {router} from './router';
 
 @injectable()
 export class Server {
 
     serve(port: number = 8080) {
         let server = http.createServer(function(request, response) {
-            router.dispatch(request, response);
+            //router.dispatch(request, response);
+            //donothing
         });
 
         let logger = app.logger;
         let shutdown = function() {
             //force shutdown
             let shutdownTimer = setTimeout(function() {
-                logger.warn("server force closed after timeout");
+                logger.warn("Server force closed after timeout");
                 process.exit(0);
             }, 15000);
             server.close(function onServerClosed (err){
                 if (err) {
-                    logger.error("server.close error: %s", err);
+                    logger.error("Server close error: %s", err);
                     process.exit(1);
                 }else {
                     app.shutdown();
@@ -45,7 +46,7 @@ export class Server {
 
         server.listen(port);
         server.on('error', (err) => {
-            logger.error("server.listen error: %s", err);
+            logger.error("server listen error: %s", err);
             process.exit(1);
         });
         if(server.listening){

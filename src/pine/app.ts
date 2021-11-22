@@ -1,7 +1,7 @@
 import {injectable, inject} from 'inversify';
 import {container} from './container';
 import {env, envBool} from './function';
-import {Logger} from './logger';
+import {Logger, ConsoleLogger} from './logger';
 import { Settings as LuxonSettings } from 'luxon';
 
 export type ShutdownHook = () => void;
@@ -13,11 +13,14 @@ export class App {
     debug: boolean = false;
     shutdownHook: ShutdownHook[] = [];
     storage: Map<string, any> = new Map;
+    logger: Logger;
 
-    @inject(Logger)
-    logger!: Logger;
+	constructor() {
+		this.logger = container.get<Logger>(ConsoleLogger);
+	}
 
     async bootstrap() {
+		this.logger.open();
         this.addShutdownHook(this.logger.close);
         this.env = env('app_env');
         this.name = env('app_name');
