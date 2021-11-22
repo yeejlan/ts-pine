@@ -1,6 +1,6 @@
 import {RedisClient} from 'redis'
 import {app} from './app'
-import { env, envNumber } from './function';
+import { env, envNumber } from './functions';
 import {promisify} from 'util';
 import {SessionStorage} from './session';
 
