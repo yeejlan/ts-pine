@@ -7,7 +7,7 @@ import path from 'path';
 import fs from 'fs';
 import multiparty from 'multiparty';
 
-export interface Rule {
+export interface RewriteRule {
     regex: RegExp,
     rewriteTo: string,
     paramMapping: Map<number, any>
@@ -15,15 +15,15 @@ export interface Rule {
 
 @injectable()
 export class Router {
-    protected routers: Rule[] = [];
+    protected rules: RewriteRule[] = [];
 
     addRoute(regex: RegExp, rewriteTo: string, paramMapping: Map<number, any>) {
-        let rule: Rule = {
+        let rule: RewriteRule = {
             regex: regex,
             rewriteTo: rewriteTo,
             paramMapping: paramMapping
         };
-        this.routers.push(rule);
+        this.rules.push(rule);
     }
 
     async dispatch(request: http.IncomingMessage, response: http.ServerResponse) {
@@ -32,12 +32,12 @@ export class Router {
         let requestUri = parsedUrl.pathname;
         let uri = requestUri.replace(/^\//,'').replace(/\/$/,'');
 
-        let routeMatched = false;
+        let ruleMatched = false;
         let controller = "";
         let action = "";
 
         if(app.debug == true) {
-            let staticFileFound = await this._serveStaticFile(request, response);
+            let staticFileFound = await this.serveStaticFile(request, response);
             if(staticFileFound){
                 return;
             }
@@ -60,7 +60,7 @@ export class Router {
         }
 
         //check rewrite rules
-        for(let rewrite of this.routers){
+        for(let rewrite of this.rules){
             let matches = requestUri.match(rewrite.regex);
             if(!matches || matches.length < 1 ){
                 continue;
@@ -73,20 +73,20 @@ export class Router {
             }
             //add params
             if(rewrite.paramMapping != null){
-                for(let idx in rewrite.paramMapping){
+                for(let idx of rewrite.paramMapping.keys()){
                     if(idx < matches.length){
-                        let key = rewrite.paramMapping[idx];
+                        let key = rewrite.paramMapping.get(idx);
                         let value = matches[idx];
-                        params[key] = value;
+                        params.set(key, value);
                     }
                 }
             }
-            routeMatched = true;
+            ruleMatched = true;
             break;
         }
 
         //normal controller/action parse
-        if(!routeMatched){
+        if(!ruleMatched){
             let uriArr = uri.split('/');  //format: 'controller/action'
             if(uri == ''){
                 controller = 'home';
@@ -100,7 +100,7 @@ export class Router {
             }
         }
 
-        let ctx = new Ctx(request, response);
+        let ctx = new Context(request, response);
         ctx.files = files;
         ctx.params = params;
         ctx.controller = controller;
@@ -114,7 +114,7 @@ export class Router {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
-    async callAction(ctx, controller, action) {
+    async callAction(ctx: Context, controller: string, action: string) {
         let controllerStr = this.capitalize(controller) + "Controller";
         let clz = this._controller[controllerStr];
         if(!clz) {
@@ -163,7 +163,7 @@ export class Router {
         }
     }
 
-    async _pageNotFound(ctx){
+    async _pageNotFound(ctx: Context){
         ctx.response.statusCode = 404;
 
         let msg404 = "Page Not Found!";
@@ -203,7 +203,7 @@ export class Router {
         }
     }
 
-    async _internalServerError(ctx, err) {
+    async _internalServerError(ctx: Context, err: unknown) {
         ctx.response.statusCode = 500;
 
         let body = '';
@@ -283,7 +283,7 @@ export class Router {
         return {};
     }
 
-    async _serveStaticFile(request: http.IncomingMessage, response: http.ServerResponse) {
+    async serveStaticFile(request: http.IncomingMessage, response: http.ServerResponse): Promise<boolean> {
         let fileNotFound = false;
 
         let BASEPATH = "public"

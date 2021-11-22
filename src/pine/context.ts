@@ -1,25 +1,26 @@
-import http from 'http';
-import {Cookies} from 'cookies';
+import {IncomingMessage, ServerResponse} from 'http';
+import Cookies from 'cookies';
 import {Session} from './session';
 import {app} from './app';
-import uuidv4 from 'uuid/v4';
+import {v4 as uuidv4} from 'uuid';
 import ejs from 'ejs';
 import path from 'path';
+import {env, envNumber, envBool} from './functions';
 
-export class Ctx {
-    protected logger = app.logger;
-    protected sessionName = env()
-    protected session = new Session();
-    constructor(request, response) {
+export class Context {
+    logger = app.logger;
+    request: IncomingMessage;
+    response: ServerResponse;
+    cookies: Cookies;
+    session: Session;
+    protected sessionName = env('session_name');
+    protected cookieDomain = env('cookie_domain');
+    protected sessionExpire = envNumber('session_expire_seconds', 3600);
+    protected sessionEnable = envBool('session_enable', false);
+    constructor(request: IncomingMessage, response: ServerResponse) {
         this.request = request;
         this.response = response;
         this.cookies = new Cookies(request, response);
-
-        this._sessionName = app.getConfig()['session.name'];
-        this._cookieDomain = app.getConfig()['cookie.domain'];
-        this._sessionExpire = parseInt(app.getConfig()['session.expire.seconds']) || 3600;
-        this._sessionEnable = app.getConfig()['session.enable'];
-
         this.session = new Session();
     }
 
@@ -28,21 +29,21 @@ export class Ctx {
             return;
         }
         await this.session.destroy();
-        this.session.setSessionId(uuidv4());
-        this.cookies.set(this._sessionName, this.session.getSessionId(), {
-            domain: this._cookieDomain
+        this.session.sessionId = uuidv4();
+        this.cookies.set(this.sessionName, this.session.sessionId, {
+            domain: this.cookieDomain
         })
     }
 
     async loadSession() {
-        if(!this._sessionEnable){
+        if(!this.sessionEnable){
             return;
         }
-        let sessionId = this.cookies.get(this._sessionName);
+        let sessionId = this.cookies.get(this.sessionName);
         if(!sessionId){
             await this.newSession();
         }else{
-            this.session.setSessionId(sessionId);
+            this.session.sessionId = sessionId;
             await this.session.load();
         }
     }
@@ -51,7 +52,7 @@ export class Ctx {
         await this.session.save();
     }
 
-    async render(filename, data) {
+    async render(filename: string, data: any): Promise<string> {
         let tplbase = 'templates';
         let options = {
             cache: true,
@@ -59,15 +60,16 @@ export class Ctx {
             async: true,
             root: tplbase
         }
-        if(this.app.getEnv() == this.app.DEVELOPMENT) {
+        if(app.debug === true) {
             options.cache = false;
         }
         let fullname = path.join(tplbase, `${filename}.ejs`)
+        let logger = this.logger;
         return new Promise((resolve, reject) => {
             ejs.renderFile(fullname, data, options, function(err, str){
                 if(err) {
-                    this.logger.error("Template render error: %s", err);
-                    resolve('');
+                    logger.error("Template render error: %s", err);
+                    reject(err);
                 }
                 resolve(str);
             });
@@ -75,7 +77,7 @@ export class Ctx {
     }
 
     exit() {
-        throw new RequestProcessCompleteException();
+        throw new RequestProcessTerminateException();
     }
 
     redirect(location: string) {
@@ -85,5 +87,5 @@ export class Ctx {
     }
 }
 
-export class RequestProcessCompleteException extends Error {}
+export class RequestProcessTerminateException extends Error {}
 

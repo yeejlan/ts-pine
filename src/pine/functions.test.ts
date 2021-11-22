@@ -1,5 +1,5 @@
 import { PineError } from './error';
-import {env, envNumber, envBool, throwError} from './function';
+import {env, envNumber, envBool, throwError} from './functions';
 
 it('env', () => {
     expect(env('app_name')).toBe('pine-app');
