@@ -2,15 +2,14 @@ import http from 'http';
 import {injectable} from 'inversify';
 import {container} from './container';
 import {app} from './app';
-//import {router} from './router';
+import {router} from './router';
 
 @injectable()
 export class Server {
 
     serve(port: number = 8080) {
         let server = http.createServer(function(request, response) {
-            //router.dispatch(request, response);
-            //donothing
+            router.dispatch(request, response);
         });
 
         let logger = app.logger;

@@ -1,7 +1,7 @@
 import {pino} from 'pino';
 import {injectable} from 'inversify';
 import {DateTime} from 'luxon';
-import {env} from './function'
+import {env} from './functions'
 
 export interface Logger {
     open(): void;

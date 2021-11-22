@@ -1,11 +1,12 @@
-import http from 'http';
+import {IncomingMessage, ServerResponse} from 'http';
 import {injectable} from 'inversify';
 import {container} from './container';
 import {app} from './app';
 import mime from 'mime';
 import path from 'path';
 import fs from 'fs';
-import multiparty from 'multiparty';
+import {Form} from 'multiparty';
+import {Context, RequestProcessTerminateException} from './context';
 
 export interface RewriteRule {
     regex: RegExp,
@@ -15,7 +16,9 @@ export interface RewriteRule {
 
 @injectable()
 export class Router {
+    protected logger = app.logger;
     protected rules: RewriteRule[] = [];
+    protected controllers: any = {};
 
     addRoute(regex: RegExp, rewriteTo: string, paramMapping: Map<number, any>) {
         let rule: RewriteRule = {
@@ -26,8 +29,12 @@ export class Router {
         this.rules.push(rule);
     }
 
-    async dispatch(request: http.IncomingMessage, response: http.ServerResponse) {
-        let parsedUrl = new URL(request.url ?? '');
+    setControllers(controllers: any) {
+        this.controllers = controllers;
+    }
+
+    async dispatch(request: IncomingMessage, response: ServerResponse) {
+        let parsedUrl = new URL(request.url ?? '', `http://${request.headers.host}`);
         let params = parsedUrl.searchParams;
         let requestUri = parsedUrl.pathname;
         let uri = requestUri.replace(/^\//,'').replace(/\/$/,'');
@@ -43,8 +50,8 @@ export class Router {
             }
         }
 
-        //handle post form
-        let post = await this.processPost(request, response);
+        //handle post data
+        let post = await this.handlePost(request, response);
         if(post === false) {
             return;
         }
@@ -53,7 +60,7 @@ export class Router {
         }
 
         //handle multi part form
-        let result = await this.processForm(request, response);
+        let result = await this.handleForm(request, response);
         let [files,fields] = result;
         for(let key in fields) {
             params.set(key, fields[key]);
@@ -110,18 +117,18 @@ export class Router {
         this.callAction(ctx, controller, action);
     }
 
-    capitalize(str: string) {
+    protected capitalize(str: string) {
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
     async callAction(ctx: Context, controller: string, action: string) {
         let controllerStr = this.capitalize(controller) + "Controller";
-        let clz = this._controller[controllerStr];
+        let clz = this.controllers[controllerStr];
         if(!clz) {
             this._pageNotFound(ctx);
             return;
         }
-        let instance = new clz();
+        let instance = container.get<typeof clz>(clz);
         let actionStr = action + "Action";
         let func = instance[actionStr];
         if(!func) {
@@ -140,18 +147,22 @@ export class Router {
             this._end(ctx, out);
             return;
         }catch(e){
-            if(e instanceof WebContextExitError) {
+            if(e instanceof RequestProcessTerminateException) {
                 this._end(ctx);
                 return;
             }else{
-                logger.error(func, "internal server error: %s", e.stack);
+                let errStr = String(e);
+                if(e instanceof Error) {
+                    errStr = e.stack || String(e);
+                }
+                this.logger.error("Internal server error: %s", errStr);
                 this._internalServerError(ctx, e);
                 return;
             }
         }
     }
 
-    _end(ctx, data) {
+    protected _end(ctx: Context, data: any = null) {
         if(data) {
             if(typeof data == 'string' || data instanceof Buffer){
                 ctx.response.end(data);
@@ -163,12 +174,12 @@ export class Router {
         }
     }
 
-    async _pageNotFound(ctx: Context){
+    protected async _pageNotFound(ctx: Context){
         ctx.response.statusCode = 404;
 
         let msg404 = "Page Not Found!";
         let controllerStr = "ErrorController"
-        let clz = this._controller[controllerStr];
+        let clz = this.controllers[controllerStr];
         if(!clz) {
             ctx.response.end(msg404);
             return
@@ -203,14 +214,14 @@ export class Router {
         }
     }
 
-    async _internalServerError(ctx: Context, err: unknown) {
+    protected async _internalServerError(ctx: Context, err: unknown) {
         ctx.response.statusCode = 500;
 
         let body = '';
 
         let msg500 = "Internal Server Error!";
         let controllerStr = "ErrorController"
-        let clz = this._controller[controllerStr];
+        let clz = this.controllers[controllerStr];
         if(!clz) {
             body = msg500;
         }
@@ -234,22 +245,21 @@ export class Router {
             }
         }
 
-        if(ctx.app.getEnv() == ctx.app.DEVELOPMENT) {
-            let ex = err || {};
-            body += `<br />\n<pre>${ex.stack}</pre>`;
+        if(app.debug === true && err instanceof Error) {
+            body += `<br />\n<pre>${err.stack}</pre>`;
         }
         ctx.response.end(body);
     }
 
-    async processForm(request: http.IncomingMessage, response: http.ServerResponse): Promise<[any, any]>{
+    protected async handleForm(request: IncomingMessage, response: ServerResponse): Promise<[any, any]>{
         if(request.method == 'POST' && request.headers['content-type'] == 'multipart/form-data') {
-            let form = new multiparty.Form();
+            let form = new Form();
             return new Promise((resolve, reject) => {
                 form.parse(request, function(err, fields, files) {
                     if(err) {
                         response.writeHead(500, {'Content-Type': 'text/plain'});
                         response.end('upload error');
-                        reject();
+                        reject(new Error(String(err)));
                     }else{
                         resolve([fields, files]);
                     }
@@ -259,7 +269,7 @@ export class Router {
         return [{},{}];
     }
 
-    async processPost(request: http.IncomingMessage, response: http.ServerResponse): Promise<any> {
+    protected async handlePost(request: IncomingMessage, response: ServerResponse): Promise<any> {
         if(request.method == 'POST' && request.headers['content-type'] == 'application/x-www-form-urlencoded') {
             return new Promise((resolve, reject) => {
                 let queryData = "";
@@ -270,7 +280,7 @@ export class Router {
                         response.writeHead(413, {'Content-Type': 'text/plain'});
                         response.end();
                         request.socket.destroy();
-                        reject();
+                        reject(new Error('post too large'));
                     }
                 });
 
@@ -283,11 +293,11 @@ export class Router {
         return {};
     }
 
-    async serveStaticFile(request: http.IncomingMessage, response: http.ServerResponse): Promise<boolean> {
+    protected async serveStaticFile(request: IncomingMessage, response: ServerResponse): Promise<boolean> {
         let fileNotFound = false;
 
         let BASEPATH = "public"
-        let parsedUrl = new URL(request.url ?? '');
+        let parsedUrl = new URL(request.url ?? '', `http://${request.headers.host}`);
         let uri = parsedUrl.pathname;
         let ctype = mime.getType(uri);
         let fileLoc = path.join(BASEPATH, uri);

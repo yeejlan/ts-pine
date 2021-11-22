@@ -1,5 +1,5 @@
 import {app} from './app';
-import {envBool} from './function';
+import {envBool} from './functions';
 
 export interface SessionStorage {
     load(sessionId: string): Promise<string>;

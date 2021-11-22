@@ -1,7 +1,7 @@
 export {app, App} from './app';
 export {container} from './container';
 export {Context, RequestProcessTerminateException} from './context';
-// export {router, Router} from './router';
+export {router, Router} from './router';
 export {server, Server} from './server';
 export {Logger, ConsoleLogger, PinoLogger} from './logger';
 

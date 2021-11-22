@@ -6,6 +6,7 @@ import {v4 as uuidv4} from 'uuid';
 import ejs from 'ejs';
 import path from 'path';
 import {env, envNumber, envBool} from './functions';
+import { URLSearchParams } from 'url';
 
 export class Context {
     logger = app.logger;
@@ -13,6 +14,11 @@ export class Context {
     response: ServerResponse;
     cookies: Cookies;
     session: Session;
+    params!: URLSearchParams;
+    controller!: string;
+    action!: string;
+    json: any = {};
+    files: any;
     protected sessionName = env('session_name');
     protected cookieDomain = env('cookie_domain');
     protected sessionExpire = envNumber('session_expire_seconds', 3600);
