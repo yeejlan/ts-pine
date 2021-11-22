@@ -16,6 +16,7 @@ export class Context {
     session: Session;
     params!: URLSearchParams;
     controller!: string;
+    id: string;
     action!: string;
     json: any = {};
     files: any;
@@ -28,6 +29,7 @@ export class Context {
         this.response = response;
         this.cookies = new Cookies(request, response);
         this.session = new Session();
+        this.id = uuidv4();
     }
 
     async newSession(){
