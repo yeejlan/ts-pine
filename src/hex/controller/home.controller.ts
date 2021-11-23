@@ -6,8 +6,8 @@ import {injectable} from 'inversify';
 export class MyHomeController extends HomeController{
 
     indexAction() {
-        let msg = 'Hex to '+env('app_name');
-        let envStr = `<!--timezone = ${env('app_timezone')}, debug = ${envBool('app_debug')}-->`;
-        return msg+envStr;
+        let msg = 'welcome to '+env('app_name');
+        let envStr = ` timezone = ${env('app_timezone')}, debug = ${envBool('app_debug')}`;
+        return this.success(msg+envStr);
     }
 }
