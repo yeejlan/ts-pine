@@ -1,4 +1,4 @@
-import {env, envBool} from '../pine/functions';
+import {env, envBool} from '../pine';
 import {injectable} from 'inversify';
 import {BaseController} from './base.controller';
 
