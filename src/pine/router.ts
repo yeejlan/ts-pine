@@ -141,6 +141,10 @@ export class Router {
                 await instance.before();
             }
             let out = await instance[actionStr]();
+            let after = instance.after;
+            if(after) {
+                out = await instance.after(out);
+            }
             await ctx.session.save();
             this._end(ctx, out);
             return;
