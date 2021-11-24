@@ -96,9 +96,16 @@ export class Context {
         return '';
     }
 
-    async getJsonBody(): Promise<any> {
+    async getJsonBody(throw_parse_error = false): Promise<any> {
         const rawBody = await this.getRawBody();
-        return JSON.parse(rawBody);
+        try{
+            return JSON.parse(rawBody);
+        }catch(err){
+            if(throw_parse_error){
+                throw err;
+            }
+        }
+        return null;
     }
 
     async render(filename: string, data: any): Promise<string> {
