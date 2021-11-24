@@ -58,7 +58,7 @@ export class MyHomeController extends HomeController{
     async uploadAction() {
         const files = this.ctx.files;
         if(files && files['myfile']){
-            console.log(files['myfile']);
+            // console.log(files['myfile']);
             const content = await new Promise((resolve, reject) => {
                 fs.readFile(files['myfile'][0]['path'], function(err, data) {
                     if (err) {
