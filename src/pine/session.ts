@@ -7,6 +7,7 @@ export interface SessionStorage {
 }
 
 export class Session {
+    protected logger = app.logger;
     protected sessionEnable: boolean = envBool('session_enable', false);
     protected changed: boolean = false;
     protected sessionStorage: SessionStorage;
@@ -14,7 +15,10 @@ export class Session {
     sessionId: string = '';
 
     constructor() {
-        this.sessionStorage = app.get('session.storage');
+        this.sessionStorage = app.get('session_storage');
+        if(this.sessionEnable && !this.sessionStorage){
+            this.logger.warn("session_storage not avaliable, session disabled.");
+        }
     }
 
     set(key: string, value: any) {

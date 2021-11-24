@@ -23,8 +23,8 @@ export class Context {
     action!: string;
     json: any = {};
     files: any;
-    protected sessionName = env('session_name');
-    protected cookieDomain = env('cookie_domain');
+    protected sessionName = env('session_name', 'session_id');
+    protected cookieDomain = env('cookie_domain', '/');
     protected sessionExpire = envNumber('session_expire_seconds', 3600);
     protected sessionEnable = envBool('session_enable', false);
     constructor(request: IncomingMessage, response: ServerResponse) {
