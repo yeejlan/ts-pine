@@ -44,7 +44,13 @@ export class MyHomeController extends HomeController{
         });
     }
 
-    uploadAction() {
-
+    async rawAction() {
+        const format = this.ctx.params.format || 'raw';
+        if(format == 'json') {
+            const json = await this.ctx.getJsonBody();
+            return this.success({json: json});
+        }
+        const rawBody = await this.ctx.getRawBody();
+        return this.success({raw: rawBody});
     }
 }

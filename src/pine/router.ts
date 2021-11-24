@@ -273,8 +273,8 @@ export class Router {
             }
         }
 
-        if(app.debug === true && err instanceof Error) {
-            body += `<br />\n<pre>${err.stack}</pre>`;
+        if(app.debug === true) {
+            body += `<br />\n<pre>${err}</pre>`;
         }
         ctx.response.end(body);
     }

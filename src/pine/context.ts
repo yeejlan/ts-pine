@@ -75,6 +75,32 @@ export class Context {
         return params;
     }
 
+    async getRawBody(): Promise<string> {
+        const request = this.request;
+        if(request.method == 'POST') {
+            return new Promise((resolve, reject) => {
+                let raw = '';
+                request.on('data', function(data) {
+                    raw += data;
+                    if(raw.length > 2e7) {
+                        raw = '';
+                        reject('post too large');
+                    }
+                });
+
+                request.on('end', function() {
+                    resolve(raw);
+                });
+            });
+        }
+        return '';
+    }
+
+    async getJsonBody(): Promise<any> {
+        const rawBody = await this.getRawBody();
+        return JSON.parse(rawBody);
+    }
+
     async render(filename: string, data: any): Promise<string> {
         let tplbase = 'templates';
         let options = {
