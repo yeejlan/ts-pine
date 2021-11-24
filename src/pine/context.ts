@@ -6,7 +6,32 @@ import {v4 as uuidv4} from 'uuid';
 import ejs from 'ejs';
 import path from 'path';
 import {env, envNumber, envBool} from './functions';
-import { URLSearchParams } from 'url';
+
+export interface Params {
+    [k: string]: any,
+    get: (key: string) => string,
+    getNumber: (key: string) => number,
+    getBool: (key: string) => boolean,
+}
+
+export function newParams(): Params {
+    return {
+        get: function(key: string): string {
+            return this[key] ?? '';
+        },
+        getNumber: function(key: string): number {
+            let val = this.get(key);
+            return +val || 0;
+        },
+        getBool: function(key: string): boolean {
+            let val = this.get(key);
+            if(val.toLowerCase() == 'true'){
+                return true;
+            }
+            return false;
+        },
+    };
+}
 
 export class Context {
     logger = app.logger;
@@ -14,7 +39,7 @@ export class Context {
     response: ServerResponse;
     cookies: Cookies;
     session: Session;
-    params!: URLSearchParams;
+    params!: Params;
     controller!: string;
     id: string;
     action!: string;

@@ -6,7 +6,7 @@ import mime from 'mime';
 import path from 'path';
 import fs from 'fs';
 import {Form} from 'multiparty';
-import {Context, RequestProcessTerminateException} from './context';
+import {Context, Params, RequestProcessTerminateException} from './context';
 
 export interface RewriteRule {
     regex: RegExp,
@@ -34,8 +34,15 @@ export class Router {
     }
 
     async dispatch(request: IncomingMessage, response: ServerResponse) {
+        let params: Params = {};
         let parsedUrl = new URL(request.url ?? '', `http://${request.headers.host}`);
-        let params = parsedUrl.searchParams;
+        //handle get params
+        if(parsedUrl.searchParams){
+            for(let one of parsedUrl.searchParams.entries()) {
+                params[one[0]] = one[1];
+            }
+        }
+
         let requestUri = parsedUrl.pathname;
         let uri = requestUri.replace(/^\//,'').replace(/\/$/,'');
 
@@ -51,16 +58,22 @@ export class Router {
         }
 
         //handle post data
-        let post = await this.handlePost(request, response);
-        for(let key in post) {
-            params.set(key, post[key]);
+        let [err, posts] = await this.handlePost(request, response);
+        if(err){
+            this.terminate(response, err.message);
+            return;
+        }
+        if(posts){
+            for(let one of posts.entries()) {
+                params[one[0]] = one[1];
+            }
         }
 
         //handle multi part form
         let result = await this.handleForm(request, response);
         let [files,fields] = result;
         for(let key in fields) {
-            params.set(key, fields[key]);
+            params[key] = fields[key];
         }
 
         //check rewrite rules
@@ -81,7 +94,7 @@ export class Router {
                     if(idx < matches.length){
                         let key = rewrite.paramMapping.get(idx);
                         let value = matches[idx];
-                        params.set(key, value);
+                        params[key] = value;
                     }
                 }
             }
@@ -162,6 +175,11 @@ export class Router {
                 return;
             }
         }
+    }
+
+    protected terminate(response: ServerResponse, message: string, code: number = 500) {
+        response.writeHead(code, {'Content-Type': 'text/plain'});
+        response.end(message);
     }
 
     protected _end(ctx: Context, data: any = null) {
@@ -273,7 +291,7 @@ export class Router {
         return [{},{}];
     }
 
-    protected async handlePost(request: IncomingMessage, response: ServerResponse): Promise<any> {
+    protected async handlePost(request: IncomingMessage, response: ServerResponse): Promise<[err: Error|null, params: URLSearchParams|null]> {
         if(request.method == 'POST' && request.headers['content-type'] == 'application/x-www-form-urlencoded') {
             return new Promise((resolve, reject) => {
                 let queryData = "";
@@ -284,17 +302,17 @@ export class Router {
                         response.writeHead(413, {'Content-Type': 'text/plain'});
                         response.end();
                         request.socket.destroy();
-                        resolve(false);
+                        resolve([new Error('post too large'), null]);
                     }
                 });
 
                 request.on('end', function() {
-                    let post = new URLSearchParams(queryData);
-                    resolve(post);
+                    let params = new URLSearchParams(queryData);
+                    resolve([null, params]);
                 });
             });
         }
-        return {};
+        return [null, new URLSearchParams()];
     }
 
     protected async serveStaticFile(request: IncomingMessage, response: ServerResponse): Promise<boolean> {
