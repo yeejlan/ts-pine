@@ -34,6 +34,15 @@ export class Router {
     }
 
     async dispatch(request: IncomingMessage, response: ServerResponse) {
+        try{
+            await this._dispatch(request, response)
+        }catch(err) {
+            this.logger.error('Dispatch error: %s', err);
+            this.terminate(response, String(err));
+        }
+    }
+
+    protected async _dispatch(request: IncomingMessage, response: ServerResponse) {
         let params: Params = {};
         let parsedUrl = new URL(request.url ?? '', `http://${request.headers.host}`);
         //handle get params
@@ -58,11 +67,7 @@ export class Router {
         }
 
         //handle post data
-        let [err, posts] = await this.handlePost(request, response);
-        if(err){
-            this.terminate(response, err.message);
-            return;
-        }
+        let posts = await this.handlePost(request, response);
         if(posts){
             for(let one of posts.entries()) {
                 params[one[0]] = one[1];
@@ -116,7 +121,6 @@ export class Router {
                 action = uriArr[1];
             }
         }
-
         let ctx = new Context(request, response);
         ctx.files = files;
         ctx.params = params;
@@ -279,9 +283,7 @@ export class Router {
             return new Promise((resolve, reject) => {
                 form.parse(request, function(err, fields, files) {
                     if(err) {
-                        response.writeHead(500, {'Content-Type': 'text/plain'});
-                        response.end('upload error');
-                        reject(new Error(String(err)));
+                        reject('upload error');
                     }else{
                         resolve([fields, files]);
                     }
@@ -291,7 +293,7 @@ export class Router {
         return [{},{}];
     }
 
-    protected async handlePost(request: IncomingMessage, response: ServerResponse): Promise<[err: Error|null, params: URLSearchParams|null]> {
+    protected async handlePost(request: IncomingMessage, response: ServerResponse): Promise<URLSearchParams> {
         if(request.method == 'POST' && request.headers['content-type'] == 'application/x-www-form-urlencoded') {
             return new Promise((resolve, reject) => {
                 let queryData = "";
@@ -299,20 +301,17 @@ export class Router {
                     queryData += data;
                     if(queryData.length > 1e6) {
                         queryData = "";
-                        response.writeHead(413, {'Content-Type': 'text/plain'});
-                        response.end();
-                        request.socket.destroy();
-                        resolve([new Error('post too large'), null]);
+                        reject('post too large');
                     }
                 });
 
                 request.on('end', function() {
                     let params = new URLSearchParams(queryData);
-                    resolve([null, params]);
+                    resolve(params);
                 });
             });
         }
-        return [null, new URLSearchParams()];
+        return new URLSearchParams();
     }
 
     protected async serveStaticFile(request: IncomingMessage, response: ServerResponse): Promise<boolean> {

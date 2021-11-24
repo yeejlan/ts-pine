@@ -20,6 +20,7 @@ export class MyHomeController extends HomeController{
         });
     }
 
+    //fake login, do nothing actually
     loginAction() {
         const schema = Joi.object({
             username: Joi.string()
