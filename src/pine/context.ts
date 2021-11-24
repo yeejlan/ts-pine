@@ -7,30 +7,8 @@ import ejs from 'ejs';
 import path from 'path';
 import {env, envNumber, envBool} from './functions';
 
-export interface Params {
-    [k: string]: any,
-    get: (key: string) => string,
-    getNumber: (key: string) => number,
-    getBool: (key: string) => boolean,
-}
-
-export function newParams(): Params {
-    return {
-        get: function(key: string): string {
-            return this[key] ?? '';
-        },
-        getNumber: function(key: string): number {
-            let val = this.get(key);
-            return +val || 0;
-        },
-        getBool: function(key: string): boolean {
-            let val = this.get(key);
-            if(val.toLowerCase() == 'true'){
-                return true;
-            }
-            return false;
-        },
-    };
+export type Params = {
+    [k: string]: string,
 }
 
 export class Context {
