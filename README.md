@@ -7,5 +7,5 @@ A node app demo.
 ```bash
 cp .env.example .env
 yarn install
-yarn start
+yarn dev
 ```
