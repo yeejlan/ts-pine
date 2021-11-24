@@ -301,7 +301,7 @@ export class Router {
                 let queryData = "";
                 request.on('data', function(data) {
                     queryData += data;
-                    if(queryData.length > 1e6) {
+                    if(queryData.length > 1e8) {
                         queryData = "";
                         reject('post too large');
                     }

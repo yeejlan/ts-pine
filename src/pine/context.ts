@@ -82,7 +82,7 @@ export class Context {
                 let raw = '';
                 request.on('data', function(data) {
                     raw += data;
-                    if(raw.length > 2e7) {
+                    if(raw.length > 1e8) {
                         raw = '';
                         reject('post too large');
                     }
