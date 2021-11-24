@@ -49,7 +49,7 @@ it('throwError', () => {
 
 it('toNumber', () => {
     expect(toNumber('123.456')).toBe(123.456);
-    expect(toNumber('no_number')).toBe(0);
+    expect(toNumber('not_number')).toBe(0);
 });
 
 it('toBool', () => {
