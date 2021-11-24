@@ -8,10 +8,12 @@ import fs from 'fs';
 import {Form} from 'multiparty';
 import {Context, Params, RequestProcessTerminateException} from './context';
 
+export type ParamMapping = { [key: number]: string };
+
 export interface RewriteRule {
     regex: RegExp,
     rewriteTo: string,
-    paramMapping: Map<number, any>
+    paramMapping: ParamMapping
 }
 
 @injectable()
@@ -20,9 +22,9 @@ export class Router {
     protected rules: RewriteRule[] = [];
     protected controllers: any = {};
 
-    addRoute(regex: RegExp, rewriteTo: string, paramMapping: Map<number, any>) {
+    addRoute(regex: string, rewriteTo: string, paramMapping: ParamMapping) {
         let rule: RewriteRule = {
-            regex: regex,
+            regex: new RegExp(regex),
             rewriteTo: rewriteTo,
             paramMapping: paramMapping
         };
@@ -47,8 +49,8 @@ export class Router {
         let parsedUrl = new URL(request.url ?? '', `http://${request.headers.host}`);
         //handle get params
         if(parsedUrl.searchParams){
-            for(let one of parsedUrl.searchParams.entries()) {
-                params[one[0]] = one[1];
+            for(let [k ,v] of parsedUrl.searchParams.entries()) {
+                params[k] = v;
             }
         }
 
@@ -69,8 +71,8 @@ export class Router {
         //handle post data
         let posts = await this.handlePost(request);
         if(posts){
-            for(let one of posts.entries()) {
-                params[one[0]] = one[1];
+            for(let [k, v] of posts.entries()) {
+                params[k] = v;
             }
         }
 
@@ -94,10 +96,10 @@ export class Router {
                 action = rewriteToArr[1];
             }
             //add params
-            if(rewrite.paramMapping != null){
-                for(let idx of rewrite.paramMapping.keys()){
-                    if(idx < matches.length){
-                        let key = rewrite.paramMapping.get(idx);
+            if(rewrite.paramMapping){
+                for(let idx in rewrite.paramMapping) {
+                    if(+idx < matches.length){
+                        let key = rewrite.paramMapping[idx];
                         let value = matches[idx];
                         params[key] = value;
                     }

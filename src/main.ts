@@ -11,6 +11,7 @@ container.bind(controllers.HomeController).to(MyHomeController);
 async function main() {
     await app.bootstrap();
     router.setControllers(controllers);
+    router.addRoute('/hello/(.*)', 'home/echo', {1: 'user'});
     server.serve();
 }
 
