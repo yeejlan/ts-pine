@@ -143,7 +143,7 @@ export class Router {
             let out = await instance[actionStr]();
             let after = instance.after;
             if(after) {
-                out = await instance.after(out);
+                await instance.after();
             }
             await ctx.session.save();
             this._end(ctx, out);
