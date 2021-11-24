@@ -44,3 +44,14 @@ export function throwError(type: string, message: string, code: number = 1000){
   e.code = code;
   throw e;
 }
+
+export function toNumber(val: string): number {
+    return +val || 0;
+}
+
+export function toBool(val: string): boolean {
+    if(val.toLowerCase() == 'true'){
+        return true;
+    }
+    return false;
+}

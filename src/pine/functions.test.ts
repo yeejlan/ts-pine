@@ -1,5 +1,5 @@
 import { PineError } from './error';
-import {env, envNumber, envBool, throwError} from './functions';
+import {env, envNumber, envBool, throwError, toNumber, toBool} from './functions';
 
 it('env', () => {
     expect(env('app_name')).toBe('pine-app');
@@ -47,3 +47,12 @@ it('throwError', () => {
     }
 });
 
+it('toNumber', () => {
+    expect(toNumber('123.456')).toBe(123.456);
+    expect(toNumber('no_number')).toBe(0);
+});
+
+it('toBool', () => {
+    expect(toBool('TrUe')).toBe(true);
+    expect(toBool('not_true')).toBe(false);
+});
