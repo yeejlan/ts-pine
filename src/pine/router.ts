@@ -67,7 +67,7 @@ export class Router {
         }
 
         //handle post data
-        let posts = await this.handlePost(request, response);
+        let posts = await this.handlePost(request);
         if(posts){
             for(let one of posts.entries()) {
                 params[one[0]] = one[1];
@@ -75,10 +75,10 @@ export class Router {
         }
 
         //handle multi part form
-        let result = await this.handleForm(request, response);
-        let [files,fields] = result;
+        let result = await this.handleForm(request);
+        let [fields, files] = result;
         for(let key in fields) {
-            params[key] = fields[key];
+            params[key] = fields[key][0];
         }
 
         //check rewrite rules
@@ -277,8 +277,8 @@ export class Router {
         ctx.response.end(body);
     }
 
-    protected async handleForm(request: IncomingMessage, response: ServerResponse): Promise<[any, any]>{
-        if(request.method == 'POST' && request.headers['content-type'] == 'multipart/form-data') {
+    protected async handleForm(request: IncomingMessage): Promise<[any, any]>{
+        if(request.method == 'POST' && request.headers['content-type']?.startsWith('multipart/form-data')) {
             let form = new Form();
             return new Promise((resolve, reject) => {
                 form.parse(request, function(err, fields, files) {
@@ -293,7 +293,7 @@ export class Router {
         return [{},{}];
     }
 
-    protected async handlePost(request: IncomingMessage, response: ServerResponse): Promise<URLSearchParams> {
+    protected async handlePost(request: IncomingMessage): Promise<URLSearchParams> {
         if(request.method == 'POST' && request.headers['content-type'] == 'application/x-www-form-urlencoded') {
             return new Promise((resolve, reject) => {
                 let queryData = "";

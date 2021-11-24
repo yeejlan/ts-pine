@@ -14,9 +14,11 @@ export class MyHomeController extends HomeController{
 
     echoAction() {
         return this.success({
+            controller: this.ctx.controller,
+            action: this.ctx.action,
             method: this.ctx.request.method,
             params: this.ctx.params,
-            a: this.ctx.params.a || true,
+            files: this.ctx.files,
         });
     }
 
@@ -40,5 +42,9 @@ export class MyHomeController extends HomeController{
             userid: params.userid,
             userid_type: typeof params.userid,
         });
+    }
+
+    uploadAction() {
+
     }
 }
