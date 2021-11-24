@@ -1,6 +1,7 @@
 import {env, envBool} from '../../pine';
 import {HomeController} from '../../controller/home.controller';
 import {injectable} from 'inversify';
+import Joi from 'joi';
 
 @injectable()
 export class MyHomeController extends HomeController{
@@ -16,6 +17,27 @@ export class MyHomeController extends HomeController{
             method: this.ctx.request.method,
             params: this.ctx.params,
             a: this.ctx.params.a || true,
+        });
+    }
+
+    loginAction() {
+        const schema = Joi.object({
+            username: Joi.string()
+                .alphanum()
+                .min(3)
+                .max(30)
+                .required(),
+            password: Joi.string()
+                .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
+            userid: Joi.number()
+                .required(),
+        });
+        let params = this.ctx.validate(schema);
+        return this.success({
+            username: params.username,
+            username_type: typeof params.username,
+            userid: params.userid,
+            userid_type: typeof params.userid,
         });
     }
 }

@@ -38,11 +38,19 @@ export function envBool(key: string, default_value: boolean = false): boolean {
     return false;
 }
 
-export function throwError(type: string, message: string, code: number = 1000){
-  let e = new PineError(message);
-  e.type = type;
-  e.code = code;
-  throw e;
+export function throwError(type: string, err: unknown, code: number = 1000){
+    let message = '';
+    if(typeof err == 'string'){
+        message = err;
+    }else if(err instanceof Error){
+        message = err.message;
+    }else{
+        message = String(err);
+    }
+    let e = new PineError(message);
+    e.type = type;
+    e.code = code;
+    throw e;
 }
 
 export function toNumber(val: string): number {

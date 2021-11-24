@@ -5,7 +5,9 @@ import {app} from './app';
 import {v4 as uuidv4} from 'uuid';
 import ejs from 'ejs';
 import path from 'path';
-import {env, envNumber, envBool} from './functions';
+import Joi from 'joi';
+import {env, envNumber, envBool, throwError} from './functions';
+import { UserException } from '.';
 
 export type Params = {
     [k: string]: string,
@@ -61,6 +63,16 @@ export class Context {
 
     async flushSession() {
         await this.session.save();
+    }
+
+    validate(schema: Joi.Schema): any {
+        let params = {};
+        try{
+            params = Joi.attempt(this.params, schema);
+        }catch(err){
+            throwError(UserException.name, err);
+        }
+        return params;
     }
 
     async render(filename: string, data: any): Promise<string> {
