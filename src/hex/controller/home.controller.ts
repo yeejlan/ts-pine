@@ -2,6 +2,7 @@ import {env, envBool} from '../../pine';
 import {HomeController} from '../../controller/home.controller';
 import {injectable} from 'inversify';
 import Joi from 'joi';
+import fs from 'fs';
 
 @injectable()
 export class MyHomeController extends HomeController{
@@ -52,5 +53,28 @@ export class MyHomeController extends HomeController{
         }
         const rawBody = await this.ctx.getRawBody();
         return this.success({raw: rawBody});
+    }
+
+    async uploadAction() {
+        const files = this.ctx.files;
+        if(files && files['myfile']){
+            console.log(files['myfile']);
+            const content = await new Promise((resolve, reject) => {
+                fs.readFile(files['myfile'][0]['path'], function(err, data) {
+                    if (err) {
+                        reject('read error');
+                    }else{
+                        resolve(data);
+                    }
+                });
+            });
+
+            return this.success({
+                size: files['myfile'][0]['size'],
+                actual_size: (content as string).length,
+                content: content,
+            })
+        }
+        return this.failed('no file uploaded');
     }
 }
