@@ -11,7 +11,7 @@ yarn dev
 ```
 # More
 
-Please check src/pine for detail.
+Please check src/pine and src/hex/controller/home.controller for detail.
 
 ```typescript
 import dotenv from 'dotenv';
