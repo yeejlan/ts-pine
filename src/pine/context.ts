@@ -28,6 +28,7 @@ export class Context {
     action!: string;
     id: string;
     files: any;
+    storage: Map<string, any> = new Map;
 
     constructor(request: IncomingMessage, response: ServerResponse) {
         this.request = request;
@@ -35,6 +36,14 @@ export class Context {
         this.cookies = new Cookies(request, response);
         this.session = new Session();
         this.id = uuidv4();
+    }
+
+    set(key: string, value: any){
+        this.storage.set(key, value);
+    }
+
+    get(key: string): any {
+        return this.storage.get(key);
     }
 
     async newSession(){
