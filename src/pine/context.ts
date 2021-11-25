@@ -11,7 +11,6 @@ import {env, envNumber, envBool, throwError} from './functions';
 const c_post_body_size_max_byte = envNumber('post_body_size_max_byte', 1e8);
 const c_session_name = env('session_name', 'session_id');
 const c_cookie_domain = env('cookie_domain', '/');
-const c_session_expire = envNumber('session_expire_seconds', 3600);
 const c_session_enable = envBool('session_enable', false);
 
 export type Params = {
@@ -84,7 +83,7 @@ export class Context {
                 let raw = '';
                 request.on('data', function(data) {
                     raw += data;
-                    if(raw.length > 1e8) {
+                    if(raw.length > c_post_body_size_max_byte) {
                         raw = '';
                         reject('post too large');
                     }
