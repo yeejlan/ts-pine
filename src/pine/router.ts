@@ -7,6 +7,9 @@ import path from 'path';
 import fs from 'fs';
 import {Form} from 'multiparty';
 import {Context, Params, RequestProcessTerminateException} from './context';
+import { envNumber } from './functions';
+
+const c_post_body_size_max_byte = envNumber('post_body_size_max_byte', 1e8);
 
 export type ParamMapping = { [key: number]: string };
 
@@ -301,7 +304,7 @@ export class Router {
                 let queryData = "";
                 request.on('data', function(data) {
                     queryData += data;
-                    if(queryData.length > 1e8) {
+                    if(queryData.length > c_post_body_size_max_byte) {
                         queryData = "";
                         reject('post too large');
                     }

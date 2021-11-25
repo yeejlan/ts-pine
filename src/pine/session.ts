@@ -6,9 +6,10 @@ export interface SessionStorage {
     save(sessionId: string, data: string): Promise<void>;
 }
 
+const c_session_enable = envBool('session_enable', false);
+
 export class Session {
     protected logger = app.logger;
-    protected sessionEnable: boolean = envBool('session_enable', false);
     protected changed: boolean = false;
     protected sessionStorage: SessionStorage;
     storage: Map<string, any> = new Map;
@@ -16,7 +17,7 @@ export class Session {
 
     constructor() {
         this.sessionStorage = app.get('session_storage');
-        if(this.sessionEnable && !this.sessionStorage){
+        if(c_session_enable && !this.sessionStorage){
             this.logger.warn("session_storage not avaliable, session disabled.");
         }
     }
@@ -50,7 +51,7 @@ export class Session {
             return;
         }
 
-        if(this.sessionEnable && this.sessionStorage) {
+        if(c_session_enable && this.sessionStorage) {
             let valueStr = await this.sessionStorage.load(this.sessionId);
             try{
                 this.storage = JSON.parse(valueStr);
@@ -73,7 +74,7 @@ export class Session {
             return;
         }
 
-        if(this.sessionEnable && this.sessionStorage) {
+        if(c_session_enable && this.sessionStorage) {
             let valueStr =  JSON.stringify(this.storage);
             await this.sessionStorage.save(this.sessionId, valueStr);
         }

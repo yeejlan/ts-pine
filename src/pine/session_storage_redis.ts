@@ -4,18 +4,19 @@ import { env, envNumber } from './functions';
 import {promisify} from 'util';
 import {SessionStorage} from './session';
 
+const c_session_expire = envNumber('session_expire_seconds', 3600);
+const c_storage_provider = env('session_storage_provider')
+
 export class RedisSessionStorage implements SessionStorage {
     logger = app.logger;
-    sessionExpire = envNumber('session_expire_seconds', 3600);
-    storageProvider = env('session_storage_provider')
     protected storageEnable: boolean = false;
     protected redis: RedisClient;
     protected getAsync!: (key: string) => Promise<string|null>;
     constructor() {
-        this.redis = app.get(this.storageProvider);
+        this.redis = app.get(c_storage_provider);
         this.storageEnable = true;
         if(!this.redis) {
-            this.logger.warn("Can not found session storage provider: %s.", this.storageProvider);
+            this.logger.warn("Can not found session storage provider: %s.", c_storage_provider);
             this.storageEnable = false;
             return;
         }
@@ -36,7 +37,7 @@ export class RedisSessionStorage implements SessionStorage {
                 resolve();
             });
         }
-        let expireSeconds = this.sessionExpire;
+        let expireSeconds = c_session_expire;
         return new Promise((resolve, _) => {
             this.redis.set(sessionId, data, 'EX', expireSeconds, (err, _) => {
                 if(err){
