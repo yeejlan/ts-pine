@@ -1,4 +1,4 @@
-import { PineError } from './error';
+import { PineException } from './exception';
 import {env, envNumber, envBool, throwError, toNumber, toBool} from './functions';
 
 it('env', () => {
@@ -34,15 +34,15 @@ it('envBool with default value', () => {
 class MyException {};
 
 it('throwError', () => {
-    expect(() => throwError(MyException.name, 'my error', 3210)).toThrowError('my error');
+    expect(() => throwError('my error', null, 3210)).toThrowError('my error');
     
     try{
-        throwError(MyException.name, 'my error', 3210)
+        throwError('my error', MyException.name, 3210)
     }catch(e){
-        expect(e instanceof PineError).toBe(true);
-        if(e instanceof PineError){
-            expect(e.type).toBe(MyException.name);
+        expect(e instanceof PineException).toBe(true);
+        if(e instanceof PineException){
             expect(e.code).toBe(3210);
+            expect(e.type).toBe(MyException.name);
         }
     }
 });

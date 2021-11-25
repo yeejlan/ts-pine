@@ -7,10 +7,5 @@ export {Logger, ConsoleLogger, PinoLogger} from './logger';
 
 export {env, envNumber, envBool, throwError} from './functions';
 
-export {PineError} from './error';
+export {PineException} from './exception';
 
-export class AuthException {};
-export class ControllerException {};
-export class DbException {};
-export class ServiceException {};
-export class UserException {};

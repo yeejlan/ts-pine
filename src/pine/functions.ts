@@ -1,4 +1,4 @@
-import { PineError } from "./error";
+import { PineException } from "./exception";
 
 type EnvCache = { [k: string]: string };
 
@@ -38,19 +38,24 @@ export function envBool(key: string, default_value: boolean = false): boolean {
     return false;
 }
 
-export function throwError(type: string, err: unknown, code: number = 1000){
+export function throwError(err: unknown, type: string|null = null, code: number|null = null){
     let message = '';
-    if(typeof err == 'string'){
-        message = err;
-    }else if(err instanceof Error){
-        message = err.message;
+    let ex: PineException;
+    if(err instanceof PineException){
+        ex = err;
     }else{
-        message = String(err);
+        if(typeof err == 'string'){
+            message = err;
+        }else if(err instanceof Error){
+            message = err.message;
+        }else{
+            message = String(err);
+        }
+        ex = new PineException(message);
     }
-    let e = new PineError(message);
-    e.type = type;
-    e.code = code;
-    throw e;
+    ex.type = type ?? PineException.name;
+    ex.code = code ?? 1000;
+    throw ex;
 }
 
 export function toNumber(val: string): number {

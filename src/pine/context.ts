@@ -7,7 +7,6 @@ import ejs from 'ejs';
 import path from 'path';
 import Joi from 'joi';
 import {env, envNumber, envBool, throwError} from './functions';
-import { UserException } from '.';
 
 const c_post_body_size_max_byte = envNumber('post_body_size_max_byte', 1e8);
 const c_session_name = env('session_name', 'session_id');
@@ -73,7 +72,7 @@ export class Context {
         try{
             params = Joi.attempt(this.params, schema);
         }catch(err){
-            throwError(UserException.name, err);
+            throwError(err);
         }
         return params;
     }
