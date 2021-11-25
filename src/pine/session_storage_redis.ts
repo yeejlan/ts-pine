@@ -2,10 +2,9 @@ import {RedisClient} from 'redis'
 import {app} from './app'
 import { env, envNumber } from './functions';
 import {promisify} from 'util';
-import {SessionStorage} from './session';
+import {c_redis_registry_key, SessionStorage} from './session';
 
 const c_session_expire = envNumber('session_expire_seconds', 3600);
-const c_storage_provider = env('session_storage_provider')
 
 export class RedisSessionStorage implements SessionStorage {
     logger = app.logger;
@@ -13,10 +12,10 @@ export class RedisSessionStorage implements SessionStorage {
     protected redis: RedisClient;
     protected getAsync!: (key: string) => Promise<string|null>;
     constructor() {
-        this.redis = app.get(c_storage_provider);
+        this.redis = app.get(c_redis_registry_key);
         this.storageEnable = true;
         if(!this.redis) {
-            this.logger.warn("Can not found session storage provider: %s.", c_storage_provider);
+            this.logger.warn("Can not found redis instance: %s.", c_redis_registry_key);
             this.storageEnable = false;
             return;
         }

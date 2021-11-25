@@ -3,6 +3,8 @@ import {container} from './container';
 import {env, envBool} from './functions';
 import {Logger, ConsoleLogger} from './logger';
 import { Settings as LuxonSettings } from 'luxon';
+import {ResourceLoader} from './resource_loader';
+import {c_session_enable, c_redis_registry_key, c_session_storage_registry_key} from './session';
 
 export type ShutdownHook = () => void;
 
@@ -34,6 +36,16 @@ export class App {
         }else{
             this.logger.warn('app_timezone is missing.');
         }
+
+        // load redis and session storage
+        if(c_session_enable){
+            const resLoader = new ResourceLoader();
+            const redis = resLoader.loadRedis('redis');
+            this.set(c_redis_registry_key, redis);
+            const sessionStorage = resLoader.loadSessionStorage();
+            this.set(c_session_storage_registry_key, sessionStorage);
+        }
+
 
         const boot_message = `${this.name} start with env=${this.env}, working_dir=` + process.cwd()
         this.logger.info(boot_message);

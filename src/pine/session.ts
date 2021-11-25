@@ -1,12 +1,14 @@
 import {app} from './app';
-import {envBool} from './functions';
+import {env, envBool} from './functions';
 
 export interface SessionStorage {
     load(sessionId: string): Promise<string>;
     save(sessionId: string, data: string): Promise<void>;
 }
 
-const c_session_enable = envBool('session_enable', false);
+export const c_session_enable = envBool('session_enable', false);
+export const c_session_storage_registry_key = 'instance.session_storage';
+export const c_redis_registry_key = 'instance.redis';
 
 export class Session {
     protected logger = app.logger;
@@ -16,9 +18,9 @@ export class Session {
     sessionId: string = '';
 
     constructor() {
-        this.sessionStorage = app.get('session_storage');
+        this.sessionStorage = app.get(c_session_storage_registry_key);
         if(c_session_enable && !this.sessionStorage){
-            this.logger.warn("session_storage not avaliable, session disabled.");
+            this.logger.warn("session_storage: %s not avaliable, session disabled.", c_session_storage_registry_key);
         }
     }
 
