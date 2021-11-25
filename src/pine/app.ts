@@ -1,11 +1,10 @@
-import {injectable, inject} from 'inversify';
+import {injectable} from 'inversify';
 import {container} from './container';
 import {env, envBool} from './functions';
 import {Logger, ConsoleLogger} from './logger';
 import { Settings as LuxonSettings } from 'luxon';
 import {ResourceManager} from './resource_manager';
 import {c_session_enable, c_redis_registry_key, c_session_storage_registry_key} from './session';
-import { RedisSessionStorage } from './session_storage_redis';
 
 export type ShutdownHook = () => void;
 
