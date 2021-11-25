@@ -34,7 +34,7 @@ it('envBool with default value', () => {
 class MyException {};
 
 it('throwError', () => {
-    expect(() => throwError('my error', null, 3210)).toThrowError('my error');
+    expect(() => throwError('my error')).toThrowError('my error');
     
     try{
         throwError('my error', MyException.name, 3210)
