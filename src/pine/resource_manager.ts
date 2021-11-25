@@ -4,7 +4,6 @@ import {ClientOpts, createClient, RedisClient} from 'redis'
 import {SessionStorage} from './session';
 import {RedisSessionStorage} from './session_storage_redis';
 
-const c_session_storage_registry_key = 'instance.session.storage';
 const c_session_storage = env('session_storage', 'redis');
 
 export class ResourceManager {
