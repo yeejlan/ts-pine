@@ -25,9 +25,8 @@ export class Context {
     session: Session;
     params!: Params;
     controller!: string;
-    id: string;
     action!: string;
-    json: any = {};
+    id: string;
     files: any;
 
     constructor(request: IncomingMessage, response: ServerResponse) {
