@@ -7,10 +7,10 @@ import {RedisSessionStorage} from './session_storage_redis';
 const c_session_storage_registry_key = 'instance.session.storage';
 const c_session_storage = env('session_storage', 'redis');
 
-export class ResourceLoader {
+export class ResourceManager {
     logger = app.logger;
 
-    loadSessionStorage(): SessionStorage|null {
+    newSessionStorage(): SessionStorage|null {
         let storageSupported = ['redis'];
         if(storageSupported.indexOf(c_session_storage) > -1) {
             //pass
@@ -25,7 +25,7 @@ export class ResourceLoader {
         return null;
     }
 
-    loadRedis(configName: string): RedisClient {
+    newRedis(configName: string): RedisClient {
         let opt:ClientOpts = {
             host: env(`${configName}_host`, '127.0.0.1'),
             port: envNumber(`${configName}_port`, 6379),

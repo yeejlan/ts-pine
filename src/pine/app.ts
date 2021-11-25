@@ -3,8 +3,9 @@ import {container} from './container';
 import {env, envBool} from './functions';
 import {Logger, ConsoleLogger} from './logger';
 import { Settings as LuxonSettings } from 'luxon';
-import {ResourceLoader} from './resource_loader';
+import {ResourceManager} from './resource_manager';
 import {c_session_enable, c_redis_registry_key, c_session_storage_registry_key} from './session';
+import { RedisSessionStorage } from './session_storage_redis';
 
 export type ShutdownHook = () => void;
 
@@ -39,10 +40,10 @@ export class App {
 
         // load redis and session storage
         if(c_session_enable){
-            const resLoader = new ResourceLoader();
-            const redis = resLoader.loadRedis('redis');
+            const rm = new ResourceManager();
+            const redis = rm.newRedis('redis');
             this.set(c_redis_registry_key, redis);
-            const sessionStorage = resLoader.loadSessionStorage();
+            const sessionStorage = rm.newSessionStorage();
             this.set(c_session_storage_registry_key, sessionStorage);
         }
 
